@@ -1,6 +1,15 @@
 import { promises as fs } from 'fs';
-import fetch from 'node-fetch';
-import { JSDOM } from 'jsdom';
+
+/**
+ * @param {string} content
+ */
+function isDeprecated(content) {
+  const lowercase = content.toLowerCase();
+  if (content.includes("  - Deprecated\n") || content.includes("  - Obsolete\n") || lowercase.includes("{{deprecated_header}}") || lowercase.includes("{{obsolete_header}}")) {
+    return true;
+  }
+  return /<div class="warning">\n.+ is deprecated/.test(content);
+}
 
 /** @type {Record<string, string>} */
 const deprecated = [];
@@ -19,16 +28,13 @@ for (const filename of await fs.readdir('api')) {
     }
   }
   for (const item of items) {
-    const response = await fetch(
-      `https://developer.mozilla.org/en-US/docs/Web/API/${item}$json`,
-    );
-    if (response.ok) {
-      const page = await response.json();
-      if (page.tags.includes('Deprecated')) {
+    try {
+      const content = await fs.readFile(`../content/files/en-us/web/api/${item}/index.html`, 'utf-8');
+      if (isDeprecated(content)) {
         deprecated.push(item);
       }
-    } else if (response.status !== 404) {
-      console.warn(`Failed to fetch ${item}: ${response.statusText}`);
+    } catch (err) {
+      console.warn(err)
     }
   }
 }
