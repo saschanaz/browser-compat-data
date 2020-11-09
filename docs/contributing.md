@@ -1,6 +1,6 @@
 # Contributing to browser-compat-data
 
-We're really happy to accept contributions to the mdn/browser-compat-data repository!
+We're really really happy to accept contributions to the mdn/browser-compat-data repository!
 
 ## Table of contents
 
